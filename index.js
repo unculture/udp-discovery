@@ -21,6 +21,7 @@ var objToJson = require('obj-to-json');
 // Constants
 var MULTICAST_ADDRESS = '224.0.0.234';
 var DEFAULT_UDP_PORT = 44201;
+var DEFAULT_UDP_DESTINATION_PORT = 44202;
 var DEFAULT_TIMEOUT = 1000;
 var DEFAULT_INTERVAL = 3000;
 var DEFAULT_DGRAM_TYPE = 'udp4'; // could also be 'udp6'
@@ -54,6 +55,7 @@ function Discovery(options) {
                       options.dgramType.toLowerCase() : DEFAULT_DGRAM_TYPE;
     self.socket = dgram.createSocket(self.dgramType);
     self.port = (options && options.port) ? options.port : DEFAULT_UDP_PORT;
+    self.destinationPort = (options && options.destinationPort) ? options.destinationPort : DEFAULT_UDP_DESTINATION_PORT;
     self.bindAddr = (options && options.bindAddr) ? options.bindAddr :
                      undefined;
     self.socket.bind(self.port, self.bindAddr);
@@ -427,7 +429,7 @@ Discovery.prototype.sendAnnounce = function(data) {
 
     // send the stringified buffer over multicast
     var buf = new Buffer(str);
-    this.socket.send(buf, 0, buf.length, this.port, MULTICAST_ADDRESS);
+    this.socket.send(buf, 0, buf.length, this.destinationPort, MULTICAST_ADDRESS);
 };
 
 /**
@@ -591,7 +593,7 @@ Discovery.prototype.sendEventToAddress = function(addr, eventName, data) {
         return false;
     }
     var buf = new Buffer(str);
-    this.socket.send(buf, 0, buf.length, this.port, addr);
+    this.socket.send(buf, 0, buf.length, this.destinationPort, addr);
 
     return true;
 };
